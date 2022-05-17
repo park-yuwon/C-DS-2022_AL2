@@ -5,7 +5,7 @@
 * 
 * File Summary: File Writing Module
 * Detail Description
-* : This file has "fileWriter2" function
+* : This file has a "fileWriter2" function
 *	and it gets array of any type with int arrType number
 *	so it can save the array data in adequate data type into the new text file.
 */
@@ -42,7 +42,7 @@ bool fileWriter2(char* fileName, const int arrType, const void* arr, const int l
 		case 1: // arr is int array
 			memset(tmp, 0, MAX_STR);
 			for (int i = 0, j = 0; i < len; i++)
-				j += sprintf(&tmp[j], "%d ", int_arr[i]);
+				j += sprintf(&tmp[j], "%d ", int_arr[i]); // save third parameter into first parameter
 			fprintf(fd, tmp);
 			break;
 		case 2: // arr is float array
