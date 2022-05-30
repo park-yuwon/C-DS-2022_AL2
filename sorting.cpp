@@ -34,14 +34,14 @@
 
 #define MAX_STR 10000
 
-#define MAX_RAND_NUM 3000
+#define MAX_RAND_NUM 10000
 
 struct RANDS {
     FILE* pos;
     FILE* ints;
     FILE* doubles;
     FILE* fixed; // String
-} *rands;
+};
 
 /* Cautions: This function get 'void' array "arr" as an input (so it can hold any type such as int, float and double)
  and write it into file with name "fileName"(parameter)
@@ -97,65 +97,6 @@ bool fileWriter2(char* fileName, const int arrType, const void* arr, const int l
     return true;
 }
 
-/* Cautions: This function get int randType argument
- and save the data read from the file named "fileName"
- * Return value : true(success to write file)
- * randType value 0: pos(positive int), 1: ints(integers), 2:doubles, 3:fixed (point)
- */
- /*
-bool fileReader(char* fileName, const int randType) {
-    FILE* fd;
-    // 1. File open as r(read) mode
-    fd = fopen(fileName, "r");
-
-    if (fd == NULL) {
-        printf("Failed to open file adequately: ");
-        printf("data can't be read.\n");
-        return false;
-    }
-    else {
-        int int_tmp;
-        //float float_tmp;
-        double double_tmp;
-
-        // 2. Write data into file
-        switch (randType) {
-        case 0: // rand is pos(positive int)
-            for (int i = 0; fscanf(fd, "%d ", &int_tmp) != EOF; i++) {
-                rands->pos = (int*)malloc(rands->pos_len * sizeof(int));
-                rands->pos[i] = int_tmp;
-            }
-            break;
-        case 1: // rand is ints(integers) 
-            for (int i = 0; fscanf(fd, "%d ", &int_tmp) != EOF; i++) {
-                rands->ints = (int*)malloc(rands->ints_len * sizeof(int));
-                rands->ints[i] = int_tmp;
-            }
-            break;
-        case 2: // rand is doubles
-            for (int i = 0; fscanf(fd, "%lf ", &double_tmp) != EOF; i++) {
-                rands->doubles = (double*)malloc(rands->doubles_len * sizeof(double));
-                rands->doubles[i] = double_tmp;
-            }
-            break;
-        case 3: // rand is fixed (point)
-            for (int i = 0; fscanf(fd, "%lf ", &double_tmp) != EOF; i++) {
-                rands->fixed = (double*)malloc(rands->fixed_len * sizeof(double));
-                rands->fixed[i] = double_tmp;
-            }
-            break;
-        default:
-            printf("Wrong rand Type\n");
-            return false;
-        }
-    }
-
-    // 3. Close file descriptor
-    fclose(fd);
-    return true;
-}
-*/
-
 bool file_w(char* filename, int size, int* arr)
 {
     FILE* infile = fopen(filename, "w");
@@ -189,9 +130,11 @@ bool file_w_double(char* filename, int size, double* arr)
     {
         for (int i = 0; i < size; i++)
         {
-            fprintf(infile, " %lf ", arr[i]);
+            fprintf(infile, "%lf\n", arr[i]);
         }
     }
+    fclose(infile);
+    return true;
 }
 
 bool file_r(char* filename, int* arr)
@@ -208,8 +151,7 @@ bool file_r(char* filename, int* arr)
     {
         int num;
         int i = 0;
-
-        while (fscanf(infile, "%d ", &num) != EOF)
+        while (fscanf(infile, "%d", &num) == 1)
         {
             arr[i] = num;
             i++;
@@ -234,7 +176,7 @@ bool file_r_double(char* filename, double* arr)
     {
         double num;
         int i = 0;
-        while (fscanf(infile, "%lf ", &num) != EOF)
+        while (fscanf(infile, "%lf", &num) != EOF)
         {
             arr[i] = num;
             i++;
@@ -248,15 +190,13 @@ bool file_r_double(char* filename, double* arr)
 bool file_string_w(char* filename, int size, char str[][6])
 {
     FILE* infile;
-    infile = fopen(filename, "a");
+    infile = fopen(filename, "w");
     if (infile == NULL)
     {
         printf("file cannot be opened\n");
         exit(0);
         return false;
     }
-
-
 
     else
     {
@@ -266,6 +206,7 @@ bool file_string_w(char* filename, int size, char str[][6])
         }
         fclose(infile);
     }
+
     return true;
 }
 
@@ -309,45 +250,7 @@ void printarr_double(double* arr, int size)
     }
 }
 
-bool file_evaluate_w(char* filename, int size, char* sortname, int* arr)
-{
-    FILE* infile;
-    infile = fopen(filename, "a");
-    if (infile == NULL)
-    {
-        printf("file cannot be oepened\n");
-        exit(0);
-        return false;
-    }
 
-    else
-    {
-        fprintf(infile, "%s sort\n", sortname);
-
-        for (int i = 0; i < size; i++)
-        {
-            fprintf(infile, " %d ", arr[i]);
-        }
-    }
-
-    fclose(infile);
-    return true;
-}
-
-bool check_correct(int* arr, int size)
-{
-    for (int i = 0; i < size - 1; i++)
-    {
-        if (arr[i] > arr[i + 1])
-        {
-            printf("there is an error in sorting..\n");
-            return false;
-        }
-
-    }
-    printf("sorting success!\n");
-    return true;
-}
 
 
 
@@ -485,88 +388,13 @@ void selectionSort_double(double arr[], int n)
         swap_double(&arr[min_idx], &arr[i]);
     }
 }
-
-void bubble_s(int arr[], int n)
-{
-    int i, j;
-    for (i = 0; i < n - 1; i++)
-
-        // Last i elements are already in place
-        for (j = 0; j < n - i - 1; j++)
-            if (arr[j] > arr[j + 1])
-                swap(&arr[j], &arr[j + 1]);
+/*
+void bubble_s() {
 
 }
+void merge_s() {
 
-
-// Merges two subarrays of arr[].
-// First subarray is arr[l..m]
-// Second subarray is arr[m+1..r]
-void merge(int arr[], int l, int m, int r)
-{
-    int i, j, k;
-    int n1 = m - l + 1;
-    int n2 = r - m;
-
-    /* create temp arrays */
-    int L[MAX_RAND_NUM], R[MAX_RAND_NUM];
-
-    /* Copy data to temp arrays L[] and R[] */
-    for (i = 0; i < n1; i++)
-        L[i] = arr[l + i];
-    for (j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
-
-    /* Merge the temp arrays back into arr[l..r]*/
-    i = 0; // Initial index of first subarray
-    j = 0; // Initial index of second subarray
-    k = l; // Initial index of merged subarray
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        }
-        else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-
-    /* Copy the remaining elements of L[], if there
-    are any */
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    /* Copy the remaining elements of R[], if there
-    are any */
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-}
-
-// 함수 호출: mergeSort(arr, 0, arr_size - 1);
-/* l is for left index and r is right index of the
-sub-array of arr to be sorted */
-void mergeSort(int arr[], int l, int r)
-{
-    if (l < r) {
-        // Same as (l+r)/2, but avoids overflow for
-        // large l and h
-        int m = l + (r - l) / 2;
-
-        // Sort first and second halves
-        mergeSort(arr, l, m);
-        mergeSort(arr, m + 1, r);
-
-        merge(arr, l, m, r);
-    }
-}
+}*/
 
 /* This function takes last element as pivot, places
 the pivot element at its correct position in sorted
@@ -609,61 +437,11 @@ void quick_s() {
 }
 void heap_s(FILE* fd) {
 
-}*/
-
-// Function to get the largest element from an array
-int getMax(int array[], int n) {
-    int max = array[0];
-    for (int i = 1; i < n; i++)
-        if (array[i] > max)
-            max = array[i];
-    return max;
 }
+void radix_s(FILE* fd) {
 
-// Using counting sort to sort the elements in the basis of significant places
-void countingSort(int array[], int size, int place) {
-    //int output[size + 1];
-    int output[MAX_RAND_NUM + 1];
-    int max = (array[0] / place) % 10;
-
-    for (int i = 1; i < size; i++) {
-        if (((array[i] / place) % 10) > max)
-            max = array[i];
-    }
-    //int count[max + 1];
-    int count[MAX_RAND_NUM + 1];
-
-    for (int i = 0; i < max; ++i)
-        count[i] = 0;
-
-    // Calculate count of elements
-    for (int i = 0; i < size; i++)
-        count[(array[i] / place) % 10]++;
-
-    // Calculate cumulative count
-    for (int i = 1; i < 10; i++)
-        count[i] += count[i - 1];
-
-    // Place the elements in sorted order
-    for (int i = size - 1; i >= 0; i--) {
-        output[count[(array[i] / place) % 10] - 1] = array[i];
-        count[(array[i] / place) % 10]--;
-    }
-
-    for (int i = 0; i < size; i++)
-        array[i] = output[i];
 }
-
-// Main function to implement radix sort
-void radixsort(int array[], int size) {
-    // Get maximum element
-    int max = getMax(array, size);
-
-    // Apply counting sort to sort elements based on place value.
-    for (int place = 1; max / place > 0; place *= 10)
-        countingSort(array, size, place);
-}
-
+*/
 /*
 *
  Part3: Implement the following sorting evaluator:
@@ -725,7 +503,7 @@ int main() {
 
     for (int i = 0; i < MAX_RAND_NUM; i++) { // 10번 반복
         random = rand(); // 난수 생성
-
+        //arr[i] = random / 100;
         arr[i] = random;
     }
 
@@ -733,7 +511,7 @@ int main() {
     for (int i = 0; i < MAX_RAND_NUM; i++)
     {
         random = rand();
-        minusarr[i] = -random;
+        minusarr[i] = -random / 100;
 
     }
 
@@ -772,15 +550,13 @@ int main() {
 
     char fname[20] = "testint.txt";
     char fname2[20] = "testminus.txt";
-    char fname3[20] = "tesetdouble.txt";
+    char fname3[20] = "testdouble.txt";
     char fname4[20] = "testtext.txt";
 
-
-
     file_w(fname, size, arr);
-    /*file_w(fname2, size, minusarr);
+    file_w(fname2, size, minusarr);
     file_w_double(fname3, size, doublearr);
-    file_string_w(fname4, size, code_str);*/
+    file_string_w(fname4, size, code_str);
 
     // File Read
 
@@ -788,8 +564,7 @@ int main() {
     int select_int_arr[MAX_RAND_NUM];
     double select_double_arr[MAX_RAND_NUM];
 
-    /*
-    int insert_pos_arr[MAX_RAND_NUM];
+    /*int insert_pos_arr[MAX_RAND_NUM];
     int insert_int_arr[MAX_RAND_NUM];
     double insert_double_arr[MAX_RAND_NUM];
 
@@ -813,60 +588,28 @@ int main() {
     int radix_int_arr[MAX_RAND_NUM];
     double radix_double_arr[MAX_RAND_NUM];
 
-    char newcodestr[MAX_RAND_NUM][6];
+    char newcodestr[1000][6];*/
 
-    */
-    double start, end;
-    start = (double)clock() / CLOCKS_PER_SEC;
-
-    selectionSort(select_pos_arr, size);
-
-    end = (((double)clock()) / CLOCKS_PER_SEC);
-    printf("프로그램 수행 시간 :%lf\n", (end - start));
+    /*int newarr[MAX_RAND_NUM];
+    int newminusarr[MAX_RAND_NUM];
+    double newdoublearr[MAX_RAND_NUM];
+    char newcodestr[MAX_RAND_NUM][6];*/
 
 
-    selectionSort(select_pos_arr, size);
-    selectionSort(select_int_arr, size);
-    selectionSort_double(select_double_arr, size);
-
-    check_correct(select_pos_arr, size);
-    file_r(fname, select_pos_arr);
-    file_r(fname2, select_int_arr);
+    //file_r(fname, newarr);
+    //file_r(fname2, newminusarr);
     file_r_double(fname3, select_double_arr);
-
-    //file_r(fname, insert_pos_arr);
-    //file_r(fname2,insert_int_arr);
-    //file_r_double(fname3, insert_double_arr);
-
-    //file_r(fname, bubble_pos_arr);
-    //file_r(fname2,bubble_int_arr);
-    //file_r_double(fname3, bubble_double_arr);
-
-    //file_r(fname, merge_pos_arr);
-    //file_r(fname2, merge_int_arr);
-    //file_r_double(fname3, merge_double_arr);
-
-    //file_r(fname, quick_pos_arr);
-    //file_r(fname2, quick_int_arr);
-    //file_r_double(fname3, quick_double_arr);
-
-    //file_r(fname, heap_pos_arr);
-    //file_r(fname2, heap_int_arr);
-    //file_r_double(fname3, heap_double_arr);
-
     //file_string_r(fname4, newcodestr);
-
-
-
+                      
     /*
     printf("1-1. Print newarr \n");
     printarr(newarr, size);
     printf("\n1-2. Print newminusarr \n");
     printarr(newminusarr, size); // 0 ~ 음수
     printf("\n1-3. Print newdoublearr \n");
-    printarr_double(newdoublearr, size);
+   
     */
-
+    printarr_double(select_double_arr, size);
     // Part 2. Sort algorithms
 
     /*insertion_s();
@@ -877,8 +620,19 @@ int main() {
     heap_s();
     radix_s();*/
 
+/*
+    double start, end;
+    start = (double)clock() / CLOCKS_PER_SEC;
 
+    selectionSort(newarr, size);
 
+    end = (((double)clock()) / CLOCKS_PER_SEC);
+    printf("프로그램 수행 시간 :%lf\n", (end - start));
+*/
+
+    //selectionSort(newarr, size);
+    //selectionSort(newminusarr, size);
+    //selectionSort_double(newdoublearr, size);
     //selectionSort(newcodestr,size); 문자열(level4)요거 정렬 함수 짜야댐
 
 
@@ -896,5 +650,6 @@ int main() {
     // 
     //close(fd);
 
+    printf("Hello");
     return 0;
 }
